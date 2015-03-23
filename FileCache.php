@@ -1,5 +1,5 @@
 <?php
-    namespace pCache;
+    namespace pFileCache;
 
     class FileCache {
 
