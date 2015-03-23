@@ -90,9 +90,11 @@
             }
             return false;
         }
+
+        //todo...
+        public function deleteAll() {
+
+        }
     }
 
     $cache = new FileCache();
-    //$cache->set('cucucu', 'wowowowowowo');
-    //$data = $cache->get('cucucu');
-    //var_dump($data);
