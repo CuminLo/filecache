@@ -96,5 +96,3 @@
 
         }
     }
-
-    $cache = new FileCache();
