@@ -1,7 +1,9 @@
 <?php
-    namespace pFileCache;
+    namespace FileCache;
 
     class FileCache {
+
+        protected static $_cache = null;
 
         protected $cacheDir;
 
@@ -11,7 +13,8 @@
         protected $suffix;
 
 
-        public function __construct ($cacheDir=null) {
+        private function __construct ($cacheDir=null)
+        {
             if (!$cacheDir) {
                 $cacheDir = realPath(sys_get_temp_dir()) . '/cache';
             } 
@@ -27,20 +30,44 @@
             $this->cacheDir = (string) $cacheDir;
         }
 
-        public function serialize($value) {
+        public static function __callStatic($functionName, $params)
+        {
+            if (!FileCache::$_cache) {
+                FileCache::$_cache = new FileCache();
+            }
+
+            if ($functionName == 'set') {
+                $ttl = isset($params[2]) ? $params[2] : FileCache::$_cache->ttl ;
+                return FileCache::$_cache->$functionName($params[0], $params[1], $ttl);
+            }
+
+            if ($functionName == 'get') {
+                return FileCache::$_cache->$functionName($params[0]);
+            }
+
+            if ($functionName == 'deleteAll') {
+                FileCache::$_cache->$functionName();
+            }
+        }
+
+        private function serialize($value)
+        {
             return serialize($value);
         }
 
-        public function getKey($key) {
+        private function getKey($key)
+        {
             return $this->prefix . $key . $this->suffix;
         }
 
-        public function getFile($key) {
+        private function getFile($key)
+        {
             $fKey = $this->getKey($key);
             return $this->cacheDir . '/' . $fKey;
         }
 
-        public function get($key) {
+        private function get($key)
+        {
             $cacheFile  = $this->getFile($key);
 
             if (!is_file($cacheFile)) {
@@ -61,7 +88,8 @@
             return unserialize($content['value']);
         }
 
-        public function set($key, $value, $ttl=null) {
+        private function set($key, $value, $ttl=null)
+        {
             $cacheFile  = $this->getFile($key);
 
             $fValue     = $this->serialize($value);
@@ -75,24 +103,41 @@
                 'ttl'   => (int) $ttl + time(),
             ]);
 
-            file_put_contents($cacheFile, $content);
+            return file_put_contents($cacheFile, $content);
         }
 
         //todo...
-        public function has($key) {
+        private function has($key) {
             return true;
         }
 
-        public function delete($key) {
+        private function delete($key)
+        {
             $cacheFile = $this->getFile($key);
-            if (is_file) {
+            if (is_file($cacheFile)) {
                 return unlink($cacheFile);
             }
             return false;
         }
 
         //todo...
-        public function deleteAll() {
+        private function deleteAll() {
+            $oh = opendir($this->cacheDir);
 
+            if (!$oh) {
+                //todo...
+            }
+
+            while(($fileName = readdir($oh)) !== false) {
+                if ($fileName == '.' || $fileName == '..') {
+                    continue;
+                }
+
+                $cacheFilePath = $this->cacheDir . '/' . $fileName;
+
+                if (is_file($cacheFilePath)) {
+                    unlink($cacheFilePath);
+                }
+            }
         }
     }

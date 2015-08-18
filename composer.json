@@ -1,0 +1,10 @@
+{
+    "require": {
+      "symfony/var-dumper": "dev-master"
+    },
+    "autoload": {
+      "psr-4": {
+        "FileCache\\": "src/"
+      }
+    }
+}
