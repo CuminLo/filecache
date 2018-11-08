@@ -1,5 +1,5 @@
 {
-    "name": "cuminlo/send-mailer",
+    "name": "cuminlo/filecache",
     "require": {
       "symfony/var-dumper": "dev-master"
     },
